@@ -1,0 +1,92 @@
+module m_FULLADD4NC                                                             //[MACROS.NET:00130] MODULE FULLADD4NC;
+(                                                                               //[MACROS.NET:00130] MODULE FULLADD4NC;
+
+    input    MasterClock,
+    input    A_0,                                                               //[MACROS.NET:00132] INPUTS	A_0,A_1,A_2,A_3,B_0,B_1,B_2,B_3,CI;
+    input    A_1,                                                               //[MACROS.NET:00132] INPUTS	A_0,A_1,A_2,A_3,B_0,B_1,B_2,B_3,CI;
+    input    A_2,                                                               //[MACROS.NET:00132] INPUTS	A_0,A_1,A_2,A_3,B_0,B_1,B_2,B_3,CI;
+    input    A_3,                                                               //[MACROS.NET:00132] INPUTS	A_0,A_1,A_2,A_3,B_0,B_1,B_2,B_3,CI;
+    input    B_0,                                                               //[MACROS.NET:00132] INPUTS	A_0,A_1,A_2,A_3,B_0,B_1,B_2,B_3,CI;
+    input    B_1,                                                               //[MACROS.NET:00132] INPUTS	A_0,A_1,A_2,A_3,B_0,B_1,B_2,B_3,CI;
+    input    B_2,                                                               //[MACROS.NET:00132] INPUTS	A_0,A_1,A_2,A_3,B_0,B_1,B_2,B_3,CI;
+    input    B_3,                                                               //[MACROS.NET:00132] INPUTS	A_0,A_1,A_2,A_3,B_0,B_1,B_2,B_3,CI;
+    input    CI,                                                                //[MACROS.NET:00132] INPUTS	A_0,A_1,A_2,A_3,B_0,B_1,B_2,B_3,CI;
+    output    Q_0,                                                              //[MACROS.NET:00133] OUTPUTS	Q_0,Q_1,Q_2,Q_3;
+    output    Q_1,                                                              //[MACROS.NET:00133] OUTPUTS	Q_0,Q_1,Q_2,Q_3;
+    output    Q_2,                                                              //[MACROS.NET:00133] OUTPUTS	Q_0,Q_1,Q_2,Q_3;
+    output    Q_3                                                               //[MACROS.NET:00133] OUTPUTS	Q_0,Q_1,Q_2,Q_3;
+);                                                                              //[MACROS.NET:00130] MODULE FULLADD4NC;
+                                                                                //[MACROS.NET:00134] LEVEL FUNCTION;
+wire AABL_0;                                                                    //[MACROS.NET:00137] AABGEN_0_(AABL_0) = ND2A(A_0,B_0);
+wire AABL_1;                                                                    //[MACROS.NET:00138] AABGEN_1_(AABL_1) = ND2A(A_1,B_1);
+wire AABL_2;                                                                    //[MACROS.NET:00139] AABGEN_2_(AABL_2) = ND2A(A_2,B_2);
+wire AABL_3;                                                                    //[MACROS.NET:00140] AABGEN_3_(AABL_3) = ND2A(A_3,B_3);
+wire AOBL_0;                                                                    //[MACROS.NET:00141] AOBGEN_0_(AOBL_0) = NR2A(A_0,B_0);
+wire AOBL_1;                                                                    //[MACROS.NET:00142] AOBGEN_1_(AOBL_1) = NR2A(A_1,B_1);
+wire AOBL_2;                                                                    //[MACROS.NET:00143] AOBGEN_2_(AOBL_2) = NR2A(A_2,B_2);
+wire AOBL_3;                                                                    //[MACROS.NET:00144] AOBGEN_3_(AOBL_3) = NR2A(A_3,B_3);
+wire AAB_1;                                                                     //[MACROS.NET:00145] AABINV_0_(AAB_1) = N1A(AABL_1);
+wire AOB_0;                                                                     //[MACROS.NET:00146] AOBINV_0_(AOB_0,AOB_1) = MACINV2(AOBL_0,AOBL_1);
+wire AOB_1;                                                                     //[MACROS.NET:00146] AOBINV_0_(AOB_0,AOB_1) = MACINV2(AOBL_0,AOBL_1);
+wire AOB_2;                                                                     //[MACROS.NET:00147] AOBINV_2_(AOB_2,AOB_3) = MACINV2(AOBL_2,AOBL_3);
+wire AOB_3;                                                                     //[MACROS.NET:00147] AOBINV_2_(AOB_2,AOB_3) = MACINV2(AOBL_2,AOBL_3);
+wire Q0T_0;                                                                     //[MACROS.NET:00149] Q0T_0_(Q0T_0) = ND2A(AABL_0,AOB_0);
+wire CIL;                                                                       //[MACROS.NET:00150] Q0T_1_(CIL,Q0T_1) = MACINV2(CI,Q0T_0);
+wire Q0T_1;                                                                     //[MACROS.NET:00150] Q0T_1_(CIL,Q0T_1) = MACINV2(CI,Q0T_0);
+wire Q1T_0;                                                                     //[MACROS.NET:00153] Q1T_0_(Q1T_0) = NR2A(AAB_1,AOBL_1);
+wire Q1T_3;                                                                     //[MACROS.NET:00154] Q1T_1_(Q1T_1,Q1T_4) = MACINV2(Q1T_0,Q1T_3);
+wire Q1T_1;                                                                     //[MACROS.NET:00154] Q1T_1_(Q1T_1,Q1T_4) = MACINV2(Q1T_0,Q1T_3);
+wire Q1T_4;                                                                     //[MACROS.NET:00154] Q1T_1_(Q1T_1,Q1T_4) = MACINV2(Q1T_0,Q1T_3);
+wire Q1T_2;                                                                     //[MACROS.NET:00155] Q1T_2_(Q1T_2) = ND2A(AABL_0,CIL);
+wire Q2T_0;                                                                     //[MACROS.NET:00159] Q2T_0_(Q2T_0) = ND2A(AABL_2,AOB_2);
+wire Q2T_1;                                                                     //[MACROS.NET:00160] Q2T_1_(Q2T_1) = ND3A(AABL_1,AABL_0,CIL);
+wire Q2T_2;                                                                     //[MACROS.NET:00161] Q2T_2_(Q2T_2) = ND2A(AOBL_0,AABL_1);
+wire Q2T_3;                                                                     //[MACROS.NET:00162] Q2T_3_(Q2T_3) = ND3A(AOB_1,Q2T_1,Q2T_2);
+wire Q2T_4;                                                                     //[MACROS.NET:00163] Q2T_4_(Q2T_4,Q2T_5) = MACINV2(Q2T_3,Q2T_0);
+wire Q2T_5;                                                                     //[MACROS.NET:00163] Q2T_4_(Q2T_4,Q2T_5) = MACINV2(Q2T_3,Q2T_0);
+wire Q3T_0;                                                                     //[MACROS.NET:00166] Q3T_0_(Q3T_0) = ND2A(AABL_3,AOB_3);
+wire Q3T_1;                                                                     //[MACROS.NET:00167] Q3T_1_(Q3T_1) = ND4A(AABL_2,AABL_1,AABL_0,CIL);
+wire Q3T_2;                                                                     //[MACROS.NET:00168] Q3T_2_(Q3T_2) = ND3A(AABL_2,AABL_1,AOBL_0);
+wire Q3T_3;                                                                     //[MACROS.NET:00169] Q3T_3_(Q3T_3) = ND2A(AABL_2,AOBL_1);
+wire Q3T_4;                                                                     //[MACROS.NET:00170] Q3T_4_(Q3T_4) = ND4A(AOB_2,Q3T_1,Q3T_2,Q3T_3);
+wire Q3T_5;                                                                     //[MACROS.NET:00171] Q3T_5_(Q3T_5,Q3T_6) = MACINV2(Q3T_0,Q3T_4);
+wire Q3T_6;                                                                     //[MACROS.NET:00171] Q3T_5_(Q3T_5,Q3T_6) = MACINV2(Q3T_0,Q3T_4);
+
+assign AABL_0 = ~(A_0 & B_0);                                                   //[MACROS.NET:00137] AABGEN_0_(AABL_0) = ND2A(A_0,B_0);
+assign AABL_1 = ~(A_1 & B_1);                                                   //[MACROS.NET:00138] AABGEN_1_(AABL_1) = ND2A(A_1,B_1);
+assign AABL_2 = ~(A_2 & B_2);                                                   //[MACROS.NET:00139] AABGEN_2_(AABL_2) = ND2A(A_2,B_2);
+assign AABL_3 = ~(A_3 & B_3);                                                   //[MACROS.NET:00140] AABGEN_3_(AABL_3) = ND2A(A_3,B_3);
+assign AOBL_0 = ~(A_0 | B_0);                                                   //[MACROS.NET:00141] AOBGEN_0_(AOBL_0) = NR2A(A_0,B_0);
+assign AOBL_1 = ~(A_1 | B_1);                                                   //[MACROS.NET:00142] AOBGEN_1_(AOBL_1) = NR2A(A_1,B_1);
+assign AOBL_2 = ~(A_2 | B_2);                                                   //[MACROS.NET:00143] AOBGEN_2_(AOBL_2) = NR2A(A_2,B_2);
+assign AOBL_3 = ~(A_3 | B_3);                                                   //[MACROS.NET:00144] AOBGEN_3_(AOBL_3) = NR2A(A_3,B_3);
+assign AAB_1 = ~AABL_1;                                                         //[MACROS.NET:00145] AABINV_0_(AAB_1) = N1A(AABL_1);
+m_MACINV2 AOBINV_0_ (.MasterClock(MasterClock),.I1(AOBL_0),.I2(AOBL_1),.Q1(AOB_0),.Q2(AOB_1));//[MACROS.NET:00146] AOBINV_0_(AOB_0,AOB_1) = MACINV2(AOBL_0,AOBL_1);
+m_MACINV2 AOBINV_2_ (.MasterClock(MasterClock),.I1(AOBL_2),.I2(AOBL_3),.Q1(AOB_2),.Q2(AOB_3));//[MACROS.NET:00147] AOBINV_2_(AOB_2,AOB_3) = MACINV2(AOBL_2,AOBL_3);
+
+assign Q0T_0 = ~(AABL_0 & AOB_0);                                               //[MACROS.NET:00149] Q0T_0_(Q0T_0) = ND2A(AABL_0,AOB_0);
+m_MACINV2 Q0T_1_ (.MasterClock(MasterClock),.I1(CI),.I2(Q0T_0),.Q1(CIL),.Q2(Q0T_1));//[MACROS.NET:00150] Q0T_1_(CIL,Q0T_1) = MACINV2(CI,Q0T_0);
+assign Q_0 = ~((CI & Q0T_1)|(CIL & Q0T_0));                                     //[MACROS.NET:00151] Q_0_(Q_0) = AO2A(CI,Q0T_1,CIL,Q0T_0);
+
+assign Q1T_0 = ~(AAB_1 | AOBL_1);                                               //[MACROS.NET:00153] Q1T_0_(Q1T_0) = NR2A(AAB_1,AOBL_1);
+m_MACINV2 Q1T_1_ (.MasterClock(MasterClock),.I1(Q1T_0),.I2(Q1T_3),.Q1(Q1T_1),.Q2(Q1T_4));//[MACROS.NET:00154] Q1T_1_(Q1T_1,Q1T_4) = MACINV2(Q1T_0,Q1T_3);
+assign Q1T_2 = ~(AABL_0 & CIL);                                                 //[MACROS.NET:00155] Q1T_2_(Q1T_2) = ND2A(AABL_0,CIL);
+assign Q1T_3 = ~(AOB_0 & Q1T_2);                                                //[MACROS.NET:00156] Q1T_3_(Q1T_3) = ND2A(AOB_0,Q1T_2);
+assign Q_1 = ~((Q1T_0 & Q1T_4)|(Q1T_1 & Q1T_3));                                //[MACROS.NET:00157] Q_1_(Q_1) = AO2A(Q1T_0,Q1T_4,Q1T_1,Q1T_3);
+
+assign Q2T_0 = ~(AABL_2 & AOB_2);                                               //[MACROS.NET:00159] Q2T_0_(Q2T_0) = ND2A(AABL_2,AOB_2);
+assign Q2T_1 = ~(AABL_1 & AABL_0 & CIL);                                        //[MACROS.NET:00160] Q2T_1_(Q2T_1) = ND3A(AABL_1,AABL_0,CIL);
+assign Q2T_2 = ~(AOBL_0 & AABL_1);                                              //[MACROS.NET:00161] Q2T_2_(Q2T_2) = ND2A(AOBL_0,AABL_1);
+assign Q2T_3 = ~(AOB_1 & Q2T_1 & Q2T_2);                                        //[MACROS.NET:00162] Q2T_3_(Q2T_3) = ND3A(AOB_1,Q2T_1,Q2T_2);
+m_MACINV2 Q2T_4_ (.MasterClock(MasterClock),.I1(Q2T_3),.I2(Q2T_0),.Q1(Q2T_4),.Q2(Q2T_5));//[MACROS.NET:00163] Q2T_4_(Q2T_4,Q2T_5) = MACINV2(Q2T_3,Q2T_0);
+assign Q_2 = ~((Q2T_3 & Q2T_0)|(Q2T_4 & Q2T_5));                                //[MACROS.NET:00164] Q_2_(Q_2) = AO2A(Q2T_3,Q2T_0,Q2T_4,Q2T_5);
+
+assign Q3T_0 = ~(AABL_3 & AOB_3);                                               //[MACROS.NET:00166] Q3T_0_(Q3T_0) = ND2A(AABL_3,AOB_3);
+assign Q3T_1 = ~(AABL_2 & AABL_1 & AABL_0 & CIL);                               //[MACROS.NET:00167] Q3T_1_(Q3T_1) = ND4A(AABL_2,AABL_1,AABL_0,CIL);
+assign Q3T_2 = ~(AABL_2 & AABL_1 & AOBL_0);                                     //[MACROS.NET:00168] Q3T_2_(Q3T_2) = ND3A(AABL_2,AABL_1,AOBL_0);
+assign Q3T_3 = ~(AABL_2 & AOBL_1);                                              //[MACROS.NET:00169] Q3T_3_(Q3T_3) = ND2A(AABL_2,AOBL_1);
+assign Q3T_4 = ~(AOB_2 & Q3T_1 & Q3T_2 & Q3T_3);                                //[MACROS.NET:00170] Q3T_4_(Q3T_4) = ND4A(AOB_2,Q3T_1,Q3T_2,Q3T_3);
+m_MACINV2 Q3T_5_ (.MasterClock(MasterClock),.I1(Q3T_0),.I2(Q3T_4),.Q1(Q3T_5),.Q2(Q3T_6));//[MACROS.NET:00171] Q3T_5_(Q3T_5,Q3T_6) = MACINV2(Q3T_0,Q3T_4);
+assign Q_3 = ~((Q3T_0 & Q3T_4)|(Q3T_5 & Q3T_6));                                //[MACROS.NET:00172] Q_3_(Q_3) = AO2A(Q3T_0,Q3T_4,Q3T_5,Q3T_6);
+
+endmodule                                                                       //[MACROS.NET:00174] END MODULE;
