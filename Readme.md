@@ -1,4 +1,4 @@
-# [Konix Multisystem](https://konixmultisystem.co.uk/) for [MiSTer Platformm](https://github.com/MiSTer-devel/Main_MiSTer/wiki)
+# [Konix Multisystem](https://konixmultisystem.co.uk/) for [MiSTer Platform](https://github.com/MiSTer-devel/Main_MiSTer/wiki)
 
 
 ## Hardware requirements
