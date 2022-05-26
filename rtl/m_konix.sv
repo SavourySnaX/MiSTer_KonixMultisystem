@@ -194,36 +194,20 @@ wire CCLK;
 
 reg [1:0] chromaEdge=2'b00;
 
-assign CE_PIXEL = CCLK;
+//assign CE_PIXEL = CCLK;
 
-/*
+
 always @(posedge clk_sys)
 begin
-    cnt <= cnt + 2'b01;
-    if (cnt==2'b11)
-    begin
-        DCLK<=~DCLK;
-    end
-	 
 	 chromaEdge <= chromaEdge << 1;
 	 chromaEdge[0] <= CCLK;
-	 
-	 //CLK_VIDEO<=~CLK_VIDEO;
 	 
 	 if (chromaEdge[1]==1'b1 && chromaEdge[0]==1'b0)
 		CE_PIXEL <= 1'b1;
 	 else
 		CE_PIXEL <= 1'b0;
-
-	//XTALcnt <= XTALcnt + 8'd1;
-	//if (XTALcnt > 5)
-	//begin
-//		XTALcnt<=8'd0;
-	//	XTAL<=~XTAL;
-//	end
-		
 end
-*/
+
 //assign XTAL = DCLK; // TODO pick a divisor
 
 wire [3:0] Red,Green,Blue;
