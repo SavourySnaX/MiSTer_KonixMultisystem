@@ -87,6 +87,8 @@ reg         code_M2TmpA;
 reg         code_M2TmpB;
 reg         code_R2TmpA;
 reg         code_R2TmpB;
+reg         code_M2OPw;
+reg         code_OPr2M;
 reg         code_M2SR;
 reg         code_SR2M;
 reg [15:0]  code_FLAGS;
@@ -149,13 +151,13 @@ parameter ALU_OP_SUB = 4'b1101;
 parameter ALU_OP_XOR = 4'b1110;
 parameter ALU_OP_CMP = 4'b1111;
 
-parameter SHIFTER_OP_ROL = 3'b000;
-parameter SHIFTER_OP_ROR = 3'b001;
-parameter SHIFTER_OP_RLC = 3'b010;
-parameter SHIFTER_OP_RRC = 3'b011;
-parameter SHIFTER_OP_SHL = 3'b100;
-parameter SHIFTER_OP_SHR = 3'b101;
-parameter SHIFTER_OP_SAR = 3'b111;
+parameter SHIFTER_OP_ROL = 4'b0000;
+parameter SHIFTER_OP_ROR = 4'b0001;
+parameter SHIFTER_OP_RLC = 4'b0010;
+parameter SHIFTER_OP_RRC = 4'b0011;
+parameter SHIFTER_OP_SHL = 4'b0100;
+parameter SHIFTER_OP_SHR = 4'b0101;
+parameter SHIFTER_OP_SAR = 4'b0111;
 
 
 wire Cond_O, Cond_NO, Cond_C, Cond_AE, Cond_E, Cond_NE, Cond_BE, Cond_A, Cond_S, Cond_NS, Cond_P, Cond_PO, Cond_L, Cond_GE, Cond_LE, Cond_G;
@@ -252,6 +254,21 @@ begin
         FLAGS[FLAG_D_IDX]<=1;
         executionState <= 9'h143;          // RNI
     end
+    else if (inst == 8'b11111001)                        // STC (not microcoded)
+    begin
+        FLAGS[FLAG_C_IDX]<=1;
+        executionState <= 9'h143;          // RNI
+    end
+    else if (inst == 8'b11111000)                        // CLC (not microcoded)
+    begin
+        FLAGS[FLAG_C_IDX]<=0;
+        executionState <= 9'h143;          // RNI
+    end
+    else if (inst == 8'b11110101)                        // CMC (not microcoded)
+    begin
+        FLAGS[FLAG_C_IDX]<=~FLAGS[FLAG_C_IDX];
+        executionState <= 9'h143;          // RNI
+    end
     else if ({inst[7:5],inst[2:0]} == 6'b001110)         // SEGMENT PREFIX
         executionState <= 9'h005;
     else if ({inst[7:6],inst[2:1]} == 4'b0010)           // alu A,i
@@ -268,6 +285,11 @@ begin
         executionState <= 9'h006;
     else if (inst[7:4] == 4'b0111)                       // Jcond
         executionState <= 9'h0e8;
+    else if (inst[7:0] == 8'b10001111)                   // 8F prefixed POP rm
+    begin
+        instruction[1]<=0;                               // acts as if direction is 0
+        executionState <= 9'h1ed;
+    end
     else if (inst[7:1] == 7'b1111111)                    // FE/FF prefixed INC/DEC rm
     begin
         executionState <= 9'h1f3;
@@ -489,6 +511,8 @@ begin
             code_R2TmpA=0;      // Can be merged into a single value ultimately (ie enable bits)
             code_SR2M=0;        // 
             code_M2SR=0;        //
+            code_M2OPw=0;       //
+            code_OPr2M=0;       //
             code_FLAGS=0;
 
 
@@ -914,6 +938,45 @@ begin
                         executionState<=9'h1f7; //EAOFFSET
                     end
 
+//024   CD FG I   MNOP R          SP    -> tmpa      1   DEC2  tmpa        ?1111111?.00   PUSH rm
+                9'h024:
+                    begin
+                        // SP->tmpa  DEC2 tmpa
+                        tmpa<=SP;
+                        selectShifter<=0;
+                        aluAselect<=2'b00;     // ALUA = tmpa
+                        aluWord<=1'b1;
+                        operation<=ALU_OP_DEC2;   // DEC2
+                        executionState<=9'h025;
+                    end
+//025 A C  F  I  L  OPQRSTU       SIGMA -> IND                                           
+                9'h025:
+                    begin
+                        // SIGMA -> IND
+                        IND<=SIGMA;
+                        executionState<=9'h026;
+                    end
+//026   CDEF  I  L  OPQRSTU       SIGMA -> SP                                            
+                9'h026:
+                    begin
+                        // SIGMA -> SP
+                        SP<=SIGMA;
+                        executionState<=9'h027;
+                    end
+//027  BC  F   J LM O QR TU       M     -> OPR       6   W     DS,P0                     
+                9'h027:
+                    begin
+                        // M -> OPR  DS,P0
+                        code_M2OPw=1;
+                        code_M={1'b1,modrm[2:0]};
+                        indirect<=1;
+                        indirectSeg<=SEG_SS;
+                        ind_byteWord<=1;
+                        ind_ioMreq<=1;
+                        ind_readWrite<=1;
+                        executionState<=9'h1FD; // RNI
+                    end
+
 //028   CD FG I   MNOP R          SP    -> tmpa      1   DEC2  tmpa        001010???.00  PUSH rw
                 9'h028:
                     begin
@@ -1068,7 +1131,7 @@ begin
 //038 A C  FG I  LM    R          SP    -> IND       6   R     DS,P2       0000??111.00  POP sr
                 9'h038:
                     begin
-                        // SP -> IND
+                        // SP -> IND    R     DS,P2
                         IND<=SP;
                         indirect<=1;
                         indirectSeg<=SEG_SS;
@@ -1097,7 +1160,7 @@ begin
 //03c A C  FG I  LM    R          SP    -> IND       6   R     DS,P2       010011101.00  POPF
                 9'h03C:
                     begin
-                        // SP -> IND
+                        // SP -> IND    R     DS,P2
                         IND<=SP;
                         indirect<=1;
                         indirectSeg<=SEG_SS;
@@ -1122,6 +1185,70 @@ begin
                         executionState<=9'h1fd;  // RNI
                     end
 //03f                                                                  
+
+//040   CD   HI  L  OPQRSTU       IND   -> tmpa                            010001111.00  POP rmw
+                9'h040:
+                    begin
+                        tmpa<=IND;
+                        executionState<=9'h041;
+                    end
+//041 A C  FG I  LM    R          SP    -> IND       6   R     DS,P2                     
+                9'h041:
+                    begin
+                        // SP -> IND    R     DS,P2
+                        IND<=SP;
+                        indirect<=1;
+                        indirectSeg<=SEG_SS;
+                        ind_byteWord<=1;
+                        ind_ioMreq<=1;
+                        ind_readWrite<=0;
+                        executionState<=9'h042;
+                    end
+//042   CDE  HI  L  OPQRSTU       IND   -> SP                                            
+                9'h042:
+                    begin
+                        if (indirectBusOpInProgress==0)
+                        begin
+                            SP<=IND+2;
+                            executionState<=9'h043; 
+                        end
+                    end
+//043 A C   G I  L  OPQR  U       tmpa  -> IND       4   none  WB,NX                     
+                9'h043:
+                    begin
+                        // tmpa -> IND
+                        IND<=tmpa;
+                        executionState<=9'h044;
+                    end
+
+//044  B  E   IJ L  OPQR          OPR   -> M         4   none  RNI         010001111.01  
+                9'h044:
+                    begin
+                        // OPR -> M   RNI
+                        code_M={1'b1,modrm[2:0]};
+                        code_OPr2M=1;
+                        if (modrm[7:6]==2'b11)
+                            executionState<=9'h1FD;
+                        else
+                            executionState<=9'h045;
+                    end
+//045 ABC  F HI  LM O QRSTU                          6   W     DD,P0                     
+                9'h045:
+                    begin
+                        // DD,P0  (DS with override)
+                        indirect<=1;
+                        indirectSeg<=segPrefix;
+                        ind_byteWord<=1'b1;
+                        ind_ioMreq<=1;
+                        ind_readWrite<=1;
+                        executionState<=9'h1FD; // RNI
+                    end
+//046                                                                                    
+//047                                                                                    
+//048                                                                                    
+//049                                                                                    
+//04a                                                                                    
+//04b                                                                  
 
 //050 A CD F   J  MN   R TU       M     -> tmpb      1   XI    tmpb, NX    ?11110011.00   NEG rm
                 9'h050:
@@ -2417,7 +2544,7 @@ begin
                         begin
                             executionState<=9'h1c0;  // PREIMUL
                             PostEffectiveAddressReturn<=9'h152;
-                        end
+                    end
                         else
                             executionState<=9'h152;
                     end
@@ -2864,7 +2991,7 @@ begin
                         carryIn<=fc;
                         code_FLAGS=FLAG_O_MSK|FLAG_S_MSK|FLAG_Z_MSK|FLAG_A_MSK|FLAG_P_MSK|FLAG_C_MSK;
                     end
-//18a ABC  F HI  L NO   STU                          5   NCY   INT0
+//18a ABC  F HI  L NO   STU                          5   NCY   INT0                      
                 9'h18A:
                     begin
                         // NCY INT0
@@ -3650,12 +3777,30 @@ begin
                         executionState<=9'h1FD;     // RNI
                     end
 
+//1ed (NOT REAL mOP) Q -> MODRM (reg == instruction kind e.g. POP...)  prefix 8F
+                9'h1ED:
+                    begin
+                        // Q -> MODRM
+                        if ((prefetchEmpty|indirectBusOpInProgress)==0)
+                        begin
+                            modrm[7:0]<=prefetchTop;
+                            readTop<=1;
+
+                            case ({prefetchTop[7]&prefetchTop[6],prefetchTop[5:3]})
+                                // 8F 
+                                4'b0000: begin PostEffectiveAddressReturn<=9'h040; executionState<=9'h1f6; end      // POP rm
+                                4'b1000: begin executionState<=9'h040; end
+
+                                default: begin executionState<=9'h1ee; PostEffectiveAddressReturn<=9'h1f3; end
+                            endcase
+                        end
+                    end
 //1ee (NOT REAL mOP) Hang CPU FOR NOW
                 9'h1EE:
                     begin
                     end
 
-//1ef (NOT REAL mOP) Q -> MODRM (reg == instruction kind e.g. TEST,NEG,MUL)
+//1ef (NOT REAL mOP) Q -> MODRM (reg == instruction kind e.g. TEST,NEG,MUL)  prefix F6/F7
                 9'h1EF:
                     begin
                         // Q -> MODRM
@@ -3694,7 +3839,7 @@ begin
                         end
                     end
 
-//1f3 (NOT REAL mOP) Q -> MODRM (reg == instruction kind e.g. INC/DEC...)
+//1f3 (NOT REAL mOP) Q -> MODRM (reg == instruction kind e.g. INC/DEC...)   prefix FE/FF
                 9'h1F3:
                     begin
                         // Q -> MODRM
@@ -3719,6 +3864,8 @@ begin
                                 5'b11010: begin executionState<=9'h074; end
                                 5'b01100: begin PostEffectiveAddressReturn<=9'h0d8; executionState<=9'h1f6; end      // JMP rm
                                 5'b11100: begin executionState<=9'h0d8; end
+                                5'b01110: begin PostEffectiveAddressReturn<=9'h024; executionState<=9'h1f6; end      // PUSH rm
+                                5'b11110: begin executionState<=9'h024; end
 
                                 default: begin executionState<=9'h1ee; PostEffectiveAddressReturn<=9'h1f3; end
                             endcase
@@ -3878,6 +4025,17 @@ begin
                     WriteToRegister(code_M[3],code_M[2:0],tmpb);
                 end
             end
+            if (code_OPr2M)
+            begin
+                if (modrm[7:6]!=2'b11)
+                begin
+                    OPRw<=OPRr;
+                end
+                else
+                begin
+                    WriteToRegister(code_M[3],code_M[2:0],OPRr);
+                end
+            end
             if (code_TmpB2R)
             begin
                 WriteToRegister(code_M[3],code_M[2:0],tmpb);
@@ -3917,6 +4075,17 @@ begin
                 else
                 begin
                     tmpa<=ReadFromRegister(code_M[3],code_M[2:0]);
+                end
+            end
+            if (code_M2OPw)
+            begin
+                if (modrm[7:6]!=2'b11)
+                begin
+                    OPRw<=code_M[3]?OPRr:{{8{OPRr[7]}},OPRr[7:0]};
+                end
+                else
+                begin
+                    OPRw<=ReadFromRegister(code_M[3],code_M[2:0]);
                 end
             end
             if (code_R2TmpB)

@@ -155,7 +155,7 @@ begin
         indirectBytes<=(ind_byteWord==0) ? 2'b10 : 2'b11;
 
     if (readTopStrobe==0 && advanceTop==1)
-        prefetchReadAddr=prefetchReadAddr+1;
+        prefetchReadAddr<=prefetchReadAddr+1;
 
     if (latchPCStrobe==0 && latchPC==1)
         REGISTER_IP<=UpdateReg;
@@ -184,9 +184,9 @@ begin
     if (RESET == 1)
     begin
         data<=0;
-        prefetchWriteAddr=3'b000;
-        prefetchReadAddr=3'b000;
-        clockstate=3'b000;
+        prefetchWriteAddr<=3'b000;
+        prefetchReadAddr<=3'b000;
+        clockstate<=3'b000;
         RD_n<=1;
         WR_n<=1;
         HOLDA<=0;
@@ -209,14 +209,14 @@ begin
     else
     begin
         if (clkEdgeSample==1'b1 && CLK==1'b0)
-            tick=1;
+            tick<=1;
         else if (clkEdgeSample==1'b0 && CLK==1'b1)
         begin
-            tick=1;
+            tick<=1;
             irqPending<=INTR;
         end
         else
-            tick=0;
+            tick<=0;
 
         if (tick)
         begin   
@@ -282,7 +282,7 @@ begin
                             begin
                                 prefetchQueue[prefetchWriteAddr[1:0]]<=inAD;
                                 prefetchQueueLinearAddress[prefetchWriteAddr[1:0]]<=address;    // just for debugging purposes
-                                prefetchWriteAddr=prefetchWriteAddr+1;
+                                prefetchWriteAddr<=prefetchWriteAddr+1;
                                 REGISTER_IP<=REGISTER_IP+1;
                            end
 
@@ -324,7 +324,7 @@ begin
                             if (requestFlush)
                             begin
                                 holdPrefetch<=0;
-                                prefetchReadAddr=prefetchWriteAddr;
+                                prefetchReadAddr<=prefetchWriteAddr;
                                 requestFlush<=0;
                             end
 
@@ -337,7 +337,7 @@ begin
                 endcase
 
                 if ((clockstate!=3'b111) | (~prefetchFull) | (indirectBytes!=0))    // Hold Internal Clock State at last state when no work to do
-                    clockstate = clockstate+1;
+                    clockstate <= clockstate+1;
             end
         end
     end

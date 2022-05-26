@@ -38,7 +38,7 @@ module alu
 
 //Generate adder (allows us to extract multiple carries)
 
-reg [16:0] carry;
+reg carry0,carry4,carry7,carry8,carry15,carry16;
 wire [15:0] Ai,Bi,resultAdder;
 
 wire [3:0] OperationL;
@@ -102,25 +102,25 @@ assign clearOC = OperationAnd[0] | OperationOr[0] | OperationXor[0];
 always @(posedge CLKx4)
 begin
 
-  carry[0] <= opHasCarry ? (op2Inv ? ~carryIn : carryIn ) : (op2Inv ? 1 : 0);
+  carry0 <= opHasCarry ? (op2Inv ? ~carryIn : carryIn ) : (op2Inv ? 1 : 0);
 
-  carry[4] <= ({1'b0,Ai[3:0]} + {1'b0,Bi[3:0]} + {4'h0,carry[0]})>>4;
-  carry[7] <= ({1'b0,Ai[6:0]} + {1'b0,Bi[6:0]} + {6'h0,carry[0]})>>7;
-  carry[8] <= ({1'b0,Ai[7:0]} + {1'b0,Bi[7:0]} + {7'h0,carry[0]})>>8;
-  carry[15] <= ({1'b0,Ai[14:0]} + {1'b0,Bi[14:0]} + {14'h0,carry[0]})>>15;
-  carry[16] <= ({1'b0,Ai[15:0]} + {1'b0,Bi[15:0]} + {15'h0,carry[0]})>>16;
+  carry4 <= ({1'b0,Ai[3:0]} + {1'b0,Bi[3:0]} + {4'h0,carry0})>>4;
+  carry7 <= ({1'b0,Ai[6:0]} + {1'b0,Bi[6:0]} + {6'h0,carry0})>>7;
+  carry8 <= ({1'b0,Ai[7:0]} + {1'b0,Bi[7:0]} + {7'h0,carry0})>>8;
+  carry15 <= ({1'b0,Ai[14:0]} + {1'b0,Bi[14:0]} + {14'h0,carry0})>>15;
+  carry16 <= ({1'b0,Ai[15:0]} + {1'b0,Bi[15:0]} + {15'h0,carry0})>>16;
 
-  S <= ((Ai[15:0] + Bi[15:0] + {15'h0,carry[0]}) & {16{~clearOC}})                |
+  S <= ((Ai[15:0] + Bi[15:0] + {15'h0,carry0}) & {16{~clearOC}})                |
       ((Ai | Bi)   & {16{ clearOC}} & OperationOr)  |
       ((Ai & Bi)   & {16{ clearOC}} & OperationAnd) |
       ((Ai ^ Bi)   & {16{ clearOC}} & OperationXor);
 
-  F_Overflow <= clearOC ? 0 : byteWord ? carry[16] ^ carry[15] : carry[8] ^ carry[7];
+  F_Overflow <= clearOC ? 0 : byteWord ? carry16 ^ carry15 : carry8 ^ carry7;
   F_Neg <= byteWord ? S[15] : S[7];
   F_Zero <= byteWord ? (S[15:0] == 0) : (S[7:0] == 0);
-  F_Aux <= carry[4] ^ op2Inv;
+  F_Aux <= carry4 ^ op2Inv;
   F_Parity <= ~(S[0] ^ S[1] ^ S[2] ^ S[3] ^ S[4] ^ S[5] ^ S[6] ^ S[7]);
-  F_Carry <= clearOC ? 0 : byteWord ? carry[16] ^ op2Inv : carry[8] ^ op2Inv;
+  F_Carry <= clearOC ? 0 : byteWord ? carry16 ^ op2Inv : carry8 ^ op2Inv;
 
 end
 

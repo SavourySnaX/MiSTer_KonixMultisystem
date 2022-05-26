@@ -605,7 +605,7 @@ TBR006AA DATAROM_(.OE(ROMEN),.A(DA[7:0]),.SO(DROMSO),.DO(DDROMo[15:0]),.DE(DDROM
 
 /* DSP Multiplier-accumulator, 16x16 with 36-bit addend */
 
-DMB2212A MULTIPLIER_(.X(X),.Y(DD),.R(MZR),.TCX(TCX),.TCY(TCY),.Z(MZ));
+DMB2212A MULTIPLIER_(.clk(MasterClock),.X(X),.Y(DD),.R(MZR),.TCX(TCX),.TCYL(TCY),.Z(MZ));
                     //MULTIPLIER_(MZ_36, MZ_35, MZ_34, MZ_33, MZ_32, MZ_31, MZ_30, MZ_29, MZ_28, 
                     //        MZ_27, MZ_26, MZ_25, MZ_24, MZ_23, MZ_22, MZ_21, MZ_20, MZ_19, MZ_18, 
                     //        MZ_17, MZ_16, MZ_15, MZ_14, MZ_13, MZ_12, MZ_11, MZ_10, MZ_9, MZ_8, 
@@ -621,7 +621,7 @@ DMB2212A MULTIPLIER_(.X(X),.Y(DD),.R(MZR),.TCX(TCX),.TCY(TCY),.Z(MZ));
 
 /* DSP ALU, 16 bit, 74181 type */
 
-DFT1811A ALU_(.S(ALUS),.A(ALUA),.B(ALUB),.CI(ALUCINL),.M(ALUM),.X(ALUX),.Y(ALUY),.CO(COUTL),.Z(AZ),.AEB(ALUAEB));
+DFT1811A ALU_(.clk(MasterClock),.S(ALUS),.A(ALUA),.B(ALUB),.CIL(ALUCINL),.M(ALUM),.X(ALUX),.Y(ALUY),.CO(COUTL),.Z(AZ),.AEB(ALUAEB));
                     //ALU_(ALUX, ALUY, COUTL, AZ_15, AZ_14, AZ_13, AZ_12, AZ_11, AZ_10, AZ_9, AZ_8,
                     //        AZ_7, AZ_6, AZ_5, AZ_4, AZ_3, AZ_2, AZ_1, AZ_0, ALUAEB)
                     // = DFT1811A (ALUS3, ALUS2, ALUS1, ALUS0, ALUA15, ALUA14, ALUA13, 

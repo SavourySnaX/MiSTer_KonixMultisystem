@@ -132,6 +132,7 @@ set_global_assignment -name SYSTEMVERILOG_FILE rtl/Slipstream/BT4OS.sv
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/Slipstream/BD4TR.sv
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/Slipstream/BD4TNR.sv
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/Slipstream/BD4TNOD.sv
+set_global_assignment -name SYSTEMVERILOG_FILE rtl/Slipstream/_74181.sv
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/m_konix.sv
 set_global_assignment -name SDC_FILE Konix.sdc
 set_global_assignment -name SYSTEMVERILOG_FILE Konix.sv
